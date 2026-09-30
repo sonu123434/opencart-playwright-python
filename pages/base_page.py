@@ -2,9 +2,11 @@ from pathlib import Path
 
 from playwright.sync_api import Page, expect
 
+from config import DEFAULT_TIMEOUT as DEFAULT_NAVIGATION_TIMEOUT
+
 
 class BasePage:
-    DEFAULT_TIMEOUT = 20_000
+    DEFAULT_TIMEOUT = DEFAULT_NAVIGATION_TIMEOUT
 
     def __init__(self, page: Page):
         self.page = page

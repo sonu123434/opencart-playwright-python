@@ -1,0 +1,62 @@
+name: UI tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: Environment to test
+        type: choice
+        options:
+          - qa
+          - uat
+          - staging
+          - production
+        default: qa
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment || 'qa' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    env:
+      OPENCART_ENV: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment || 'qa' }}
+      OPENCART_BASE_URL: ${{ vars.OPENCART_BASE_URL }}
+      OPENCART_TEST_EMAIL: ${{ secrets.OPENCART_TEST_EMAIL }}
+      OPENCART_TEST_PASSWORD: ${{ secrets.OPENCART_TEST_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Install browser
+        run: python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Check code quality
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Run tests
+        run: |
+          if [ "$OPENCART_ENV" = "production" ]; then
+            python -m pytest --browser ${{ matrix.browser }} -m "smoke or sanity" -q
+          else
+            python -m pytest --browser ${{ matrix.browser }} -q
+          fi
+      - name: Upload reports and failure artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts-${{ matrix.browser }}
+          path: artifacts/
+          if-no-files-found: ignore

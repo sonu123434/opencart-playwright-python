@@ -1,0 +1,24 @@
+{
+  "login": {
+    "empty": {
+      "email": "",
+      "password": ""
+    },
+    "invalid": {
+      "email": "invalid-user@example.invalid",
+      "password": "invalid-password"
+    }
+  },
+  "product": {
+    "name": "iMac",
+    "quantity": "1",
+    "invalid_quantity": "0",
+    "cart_summary": "1 item(s) - $122.00",
+    "totals": [
+      {"label": "Sub-Total:", "amount": "$100.00"},
+      {"label": "Eco Tax (-2.00):", "amount": "$2.00"},
+      {"label": "VAT (20%):", "amount": "$20.00"},
+      {"label": "Total:", "amount": "$122.00"}
+    ]
+  }
+}

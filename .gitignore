@@ -1,6 +1,9 @@
 __pycache__/
 .pytest_cache/
+.ruff_cache/
 *.pyc
 artifacts/
 playwright-report/
 test-results/
+__pycache__/
+credentials.json

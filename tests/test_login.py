@@ -1,25 +1,19 @@
+import logging
+
+import pytest
 from playwright.sync_api import Page, expect
 
-from pages.account_page import AccountPage
-from pages.home_page import HomePage
-from pages.login_page import LoginPage
+from config import ACCOUNT_PATH, LOGIN_PATH, build_url
+
+logger = logging.getLogger(__name__)
 
 
-def test_login_page(page: Page):
-    home_page = HomePage(page)
-    login_page = LoginPage(page)
-
-    home_page.open()
-    home_page.click_my_account()
-    home_page.click_login_from_my_account()
-
-    expect(page).to_have_url("https://naveenautomationlabs.com/opencart/index.php?route=account/login")
-    login_page.verify_returning_customer_section()
-
-    login_page.enter_email("test.automation.opencart@gmail.com")
-    login_page.enter_password("Test@12345")
-    login_page.click_login()
-
-    account_page = AccountPage(page)
+@pytest.mark.smoke
+@pytest.mark.login
+def test_login_page(page: Page, login_form, account_page, test_credentials):
+    expect(page).to_have_url(build_url(LOGIN_PATH))
+    login_form.verify_returning_customer_section()
+    login_form.login_as(**test_credentials)
     account_page.expect_logged_in()
-    expect(page).to_have_url("https://naveenautomationlabs.com/opencart/index.php?route=account/account")
+    expect(page).to_have_url(build_url(ACCOUNT_PATH))
+    logger.info("event=login_successful")
